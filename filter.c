@@ -407,7 +407,7 @@ static int _ev_watcher_stop(ev_t *w)
     w->active = 0;
 
     /* Remove from internal list */
-    YYY;
+    EV_REMOVE(w, w->ctx->watchers);
 
     /* Remove from kernel */
     if (epoll_ctl(w->ctx->fd, EPOLL_CTL_DEL, w->fd, NULL) < 0) return -1;
@@ -417,7 +417,7 @@ static int _ev_watcher_stop(ev_t *w)
 
 static bool _ev_watcher_active(ev_t *w)
 {
-    return w ? (ZZZ) : false;
+    return w ? (w->ctx->running) : false;
 }
 
 static int _ev_watcher_rearm(ev_t *w)
