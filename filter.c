@@ -417,7 +417,7 @@ static int _ev_watcher_stop(ev_t *w)
 
 static bool _ev_watcher_active(ev_t *w)
 {
-    return w ? (w->ctx->running) : false;
+    return w ? (w->active > 0) : false;
 }
 
 static int _ev_watcher_rearm(ev_t *w)
@@ -538,7 +538,7 @@ int ev_run(ev_ctx_t *ctx, int flags)
         if (rerun) continue;
         ctx->workaround = false;
 
-        while ((nfds = WWW(ctx->fd, ee, EV_MAX_EVENTS, timeout)) < 0) {
+        while ((nfds = epoll_wait(ctx->fd, ee, EV_MAX_EVENTS, timeout)) < 0) {
             if (!ctx->running) break;
 
             if (EINTR == errno) continue; /* Signalled, try again */
@@ -557,7 +557,7 @@ int ev_run(ev_ctx_t *ctx, int flags)
 
             switch (w->type) {
             case EV_IO_TYPE:
-                if (events & (XXX | EPOLLERR)) ev_io_stop(w);
+                if (events & (EPOLLHUP | EPOLLERR)) ev_io_stop(w);
                 break;
 
             case EV_TIMER_TYPE:
